@@ -30,7 +30,7 @@
                         <div class="d-flex align-items-center  mb-5">
                             <img src="{{ asset('img/logo-lms.png') }}" alt="logo" width="80"
                                 class="shadow-light rounded-circle ">
-                            <h2 class="text-dark font-weight-normal ml-4">CBT BLK Mojokerto
+                            <h2 class="text-dark font-weight-normal ml-4">CBT Admin Kejari
                             </h2>
                         </div>
 

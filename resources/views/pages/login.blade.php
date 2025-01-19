@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>Login &mdash; Stisla</title>
+    <title>Login &mdash; Kejari</title>
 
     <!-- General CSS Files -->
     <link rel="stylesheet" href="{{ asset('library/bootstrap/dist/css/bootstrap.min.css') }}">
@@ -28,9 +28,9 @@
                     class="col-lg-4 col-md-6 col-12 order-lg-1 min-vh-100 order-2 bg-white d-flex flex-column justify-content-center ">
                     <div class="m-3 p-4  ">
                         <div class="d-flex align-items-center  mb-5">
-                            <img src="{{ asset('img/logo-lms.png') }}" alt="logo" width="80"
-                                class="shadow-light rounded-circle ">
-                            <h3 class="text-dark font-weight-normal ml-4">CBT BLK Mojokerto
+                            {{-- <img src="{{ asset('img/logo-lms.png') }}" alt="logo" width="80"
+                                class="shadow-light rounded-circle "> --}}
+                            <h3 class="text-dark font-weight-normal ml-4">Admin Kejari
                             </h3>
                         </div>
 
@@ -82,9 +82,9 @@
                             </div> --}}
 
                             <div class="form-group ">
-                                <a href="/forgot-password" class="float-left mb-3">
+                                {{-- <a href="/forgot-password" class="float-left mb-3">
                                     Forgot Password?
-                                </a>
+                                </a> --}}
                                 <button type="submit" class="btn btn-primary btn-lg btn-icon icon-right w-100 "
                                     tabindex="4" name="submit">
                                     Login
