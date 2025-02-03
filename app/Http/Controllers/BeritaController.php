@@ -29,6 +29,11 @@ class BeritaController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
+        $getLastData = Berita::orderBy('id', 'desc')->first();
+        $getId = 0;
+        if ($getLastData) {
+            $getId = $getLastData->id;
+        }
         if ($request) {
             if ($request->hasFile('gambar')) {
 
@@ -38,6 +43,7 @@ class BeritaController extends Controller
                 $request->file('gambar')->move('img/berita', $fileName);
 
                 $berita = new Berita;
+                $berita->id = $getId->id + 1;
                 $berita->judul = $request->judul;
                 $berita->deskripsi = $request->deskripsi;
                 $berita->gambar = $fileName;
