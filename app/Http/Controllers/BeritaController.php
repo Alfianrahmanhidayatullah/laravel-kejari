@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use App\Models\Berita;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 class BeritaController extends Controller
 {
@@ -27,9 +26,46 @@ class BeritaController extends Controller
         return view('pages.add-berita');
     }
 
+    // public function store(Request $request)
+    // {
+    //     // dd($request->all());
+    //     $getLastData = Berita::orderBy('id', 'desc')->first();
+    //     $getId = 0;
+    //     if ($getLastData) {
+    //         $getId = $getLastData->id;
+    //     }
+    //     if ($request) {
+    //         if ($request->hasFile('gambar')) {
+
+    //             // $getPegawaiBaru = Pegawai::orderBy('created_at', 'desc')->first();
+    //             // $getKonfigCuti = Konfig_cuti::where('tahun',(new \DateTime())->format('Y'))->first();
+    //             $fileName = $request->file('gambar')->getClientOriginalName();
+    //             $request->file('gambar')->move('img/berita', $fileName);
+
+    //             $berita = new Berita;
+    //             $berita->id = $getId->id + 1;
+    //             $berita->judul = $request->judul;
+    //             $berita->deskripsi = $request->deskripsi;
+    //             $berita->gambar = $fileName;
+    //             $berita->created_at = Carbon::now();
+    //             $berita->updated_at = Carbon::now();
+
+    //             $berita->save();
+
+    //             return redirect('/admin/berita');
 
 
 
+    //             // ->with('success', 'Berhasil membuat Materi');
+    //         } else {
+    //             return redirect('/admin/berita');
+    //             // ->with('failed', 'Gagal membuat Materi');
+    //         }
+    //     } else {
+    //         return redirect('/admin/berita');
+    //         // ->with('failed', 'Gagal membuat Materi');
+    //     }
+    // }
 
     public function store(Request $request)
     {
@@ -48,7 +84,9 @@ class BeritaController extends Controller
             $filePath = 'img/berita/' . $fileName;
 
             // Simpan file ke direktori public
-            Storage::disk('public')->put($filePath, file_get_contents($file));
+            // Storage::disk('public')->put($filePath, file_get_contents($file));
+            $fileName = $request->file('gambar')->getClientOriginalName();
+            $request->file('gambar')->move('img/berita', $fileName);
 
             // Simpan data ke database
             $berita = new Berita();
@@ -61,27 +99,20 @@ class BeritaController extends Controller
             $berita->save();
 
             // Pastikan Laravel berada di dalam repository GitHub
-            $repoPath = base_path();
+            // Jalankan perintah Git untuk push ke repository GitHub
+            $repoPath = base_path(); // Pastikan Laravel berada di dalam repository GitHub
+            // exec("cd {$repoPath} && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+            exec("cd {$repoPath} && touch database.sqlite && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
 
-            // Buat atau update file `.git-trigger`
-            $triggerFile = "{$repoPath}/.git-trigger";
-            file_put_contents($triggerFile, "Last push: " . Carbon::now());
-
-            // Jalankan Git secara bertahap
-            $output = [];
-            exec("cd {$repoPath} && git add .git-trigger img/berita/{$fileName}", $output);
-            exec("cd {$repoPath} && git commit -m 'Tambah berita: {$request->judul}'", $output);
-            exec("cd {$repoPath} && git push origin main", $output);
 
             // Log hasil eksekusi Git
-            file_put_contents("{$repoPath}/git-log.txt", implode("\n", $output), FILE_APPEND);
+            // file_put_contents("{$repoPath}/git-log.txt", implode("\n", $output), FILE_APPEND);
 
             return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
         }
 
         return redirect('/admin/berita')->with('failed', 'Gagal menambahkan berita, gambar tidak ditemukan.');
     }
-
 
     public function edit(Request $request)
     {
