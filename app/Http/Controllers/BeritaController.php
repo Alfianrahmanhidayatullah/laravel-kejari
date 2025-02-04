@@ -47,7 +47,7 @@ class BeritaController extends Controller
             $filePath = 'img/berita/' . $fileName;
 
             // Simpan file ke direktori publik (public/img/berita)
-            Storage::disk('public')->putFileAs('img/berita', $file, $fileName);
+            Storage::disk('public')->put('img/berita/' . $fileName, file_get_contents($file));
 
             // Simpan data ke database
             $berita = new Berita();
