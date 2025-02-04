@@ -30,6 +30,10 @@ class BeritaController extends Controller
 
 
 
+    use Illuminate\Support\Facades\Storage;
+    use Carbon\Carbon;
+    use App\Models\Berita;
+
     public function store(Request $request)
     {
         $request->validate([
@@ -46,8 +50,8 @@ class BeritaController extends Controller
             $fileName = time() . '_' . $file->getClientOriginalName();
             $filePath = 'img/berita/' . $fileName;
 
-            // Simpan file ke direktori publik (public/img/berita)
-            Storage::disk('public')->put('img/berita/' . $fileName, file_get_contents($file));
+            // Simpan file ke direktori public
+            Storage::disk('public')->put($filePath, file_get_contents($file));
 
             // Simpan data ke database
             $berita = new Berita();
@@ -59,17 +63,28 @@ class BeritaController extends Controller
             $berita->updated_at = Carbon::now();
             $berita->save();
 
-            // Jalankan perintah Git untuk push ke repository GitHub
-            $repoPath = base_path(); // Pastikan Laravel berada di dalam repository GitHub
-            // exec("cd {$repoPath} && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
-            exec("cd {$repoPath} && touch database.sqlite && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+            // Pastikan Laravel berada di dalam repository GitHub
+            $repoPath = base_path();
 
+            // Buat atau update file `.git-trigger`
+            $triggerFile = "{$repoPath}/.git-trigger";
+            file_put_contents($triggerFile, "Last push: " . Carbon::now());
+
+            // Jalankan Git secara bertahap
+            $output = [];
+            exec("cd {$repoPath} && git add .git-trigger img/berita/{$fileName}", $output);
+            exec("cd {$repoPath} && git commit -m 'Tambah berita: {$request->judul}'", $output);
+            exec("cd {$repoPath} && git push origin main", $output);
+
+            // Log hasil eksekusi Git
+            file_put_contents("{$repoPath}/git-log.txt", implode("\n", $output), FILE_APPEND);
 
             return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
         }
 
         return redirect('/admin/berita')->with('failed', 'Gagal menambahkan berita, gambar tidak ditemukan.');
     }
+
 
     public function edit(Request $request)
     {
