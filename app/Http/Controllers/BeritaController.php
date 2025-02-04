@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use App\Models\Berita;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class BeritaController extends Controller
 {
@@ -26,46 +27,48 @@ class BeritaController extends Controller
         return view('pages.add-berita');
     }
 
+
+
+
     public function store(Request $request)
     {
-        // dd($request->all());
+        $request->validate([
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
         $getLastData = Berita::orderBy('id', 'desc')->first();
-        $getId = 0;
-        if ($getLastData) {
-            $getId = $getLastData->id;
+        $getId = $getLastData ? $getLastData->id : 0;
+
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = 'img/berita/' . $fileName;
+
+            // Simpan file ke direktori publik (public/img/berita)
+            Storage::disk('public')->putFileAs('img/berita', $file, $fileName);
+
+            // Simpan data ke database
+            $berita = new Berita();
+            $berita->id = $getId + 1;
+            $berita->judul = $request->judul;
+            $berita->deskripsi = $request->deskripsi;
+            $berita->gambar = $fileName;
+            $berita->created_at = Carbon::now();
+            $berita->updated_at = Carbon::now();
+            $berita->save();
+
+            // Jalankan perintah Git untuk push ke repository GitHub
+            $repoPath = base_path(); // Pastikan Laravel berada di dalam repository GitHub
+            exec("cd {$repoPath} && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+
+            return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
         }
-        if ($request) {
-            if ($request->hasFile('gambar')) {
 
-                // $getPegawaiBaru = Pegawai::orderBy('created_at', 'desc')->first();
-                // $getKonfigCuti = Konfig_cuti::where('tahun',(new \DateTime())->format('Y'))->first();
-                $fileName = $request->file('gambar')->getClientOriginalName();
-                $request->file('gambar')->move('img/berita', $fileName);
-
-                $berita = new Berita;
-                $berita->id = $getId->id + 1;
-                $berita->judul = $request->judul;
-                $berita->deskripsi = $request->deskripsi;
-                $berita->gambar = $fileName;
-                $berita->created_at = Carbon::now();
-                $berita->updated_at = Carbon::now();
-
-                $berita->save();
-
-                return redirect('/admin/berita');
-
-
-
-                // ->with('success', 'Berhasil membuat Materi');
-            } else {
-                return redirect('/admin/berita');
-                // ->with('failed', 'Gagal membuat Materi');
-            }
-        } else {
-            return redirect('/admin/berita');
-            // ->with('failed', 'Gagal membuat Materi');
-        }
+        return redirect('/admin/berita')->with('failed', 'Gagal menambahkan berita, gambar tidak ditemukan.');
     }
+
     public function edit(Request $request)
     {
         // $data['karyawan'] = Pegawai::where([
