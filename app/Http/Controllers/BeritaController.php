@@ -162,7 +162,9 @@ class BeritaController extends Controller
 
     public function getListBerita()
     {
-        $data = Berita::all();
+        // $data = Berita::all();
+        $data = Berita::latest()->get();
+
 
         return response()->json([
             'success' => true,
