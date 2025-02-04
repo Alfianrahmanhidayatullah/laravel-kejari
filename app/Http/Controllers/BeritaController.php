@@ -61,7 +61,9 @@ class BeritaController extends Controller
 
             // Jalankan perintah Git untuk push ke repository GitHub
             $repoPath = base_path(); // Pastikan Laravel berada di dalam repository GitHub
-            exec("cd {$repoPath} && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+            // exec("cd {$repoPath} && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+            exec("cd {$repoPath} && touch database.sqlite && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+
 
             return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
         }
