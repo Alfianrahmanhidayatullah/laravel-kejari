@@ -30,9 +30,6 @@ class BeritaController extends Controller
 
 
 
-    use Illuminate\Support\Facades\Storage;
-    use Carbon\Carbon;
-    use App\Models\Berita;
 
     public function store(Request $request)
     {
