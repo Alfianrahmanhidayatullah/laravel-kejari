@@ -100,15 +100,37 @@ class BeritaController extends Controller
 
             // Pastikan Laravel berada di dalam repository GitHub
             // Jalankan perintah Git untuk push ke repository GitHub
-            $repoPath = base_path(); // Pastikan Laravel berada di dalam repository GitHub
-            // exec("cd {$repoPath} && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
-            exec("cd {$repoPath} && touch database.sqlite && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+            // $repoPath = base_path(); // Pastikan Laravel berada di dalam repository GitHub
+            // // exec("cd {$repoPath} && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
+            // exec("cd {$repoPath} && touch database.sqlite && git add . && git commit -m 'Tambah berita: {$request->judul}' && git push origin main");
 
 
             // Log hasil eksekusi Git
             // file_put_contents("{$repoPath}/git-log.txt", implode("\n", $output), FILE_APPEND);
 
-            return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
+            // return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
+            // Pastikan Laravel berada di dalam repository GitHub
+            $repoPath = base_path();
+
+            // Deteksi OS
+            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+
+            // Sesuaikan command berdasarkan OS
+            if ($isWindows) {
+                $command = "cd /D {$repoPath} && git add . && git commit -m \"Tambah berita: {$request->judul}\" && git push origin main";
+            } else {
+                $command = "cd {$repoPath} && git add . && git commit -m \"Tambah berita: {$request->judul}\" && git push origin main";
+            }
+
+            // Jalankan command Git
+            exec($command, $output, $return_var);
+
+            // Cek apakah Git berhasil dieksekusi
+            if ($return_var === 0) {
+                return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
+            } else {
+                return redirect('/admin/berita')->with('warning', 'Berita berhasil ditambahkan, tetapi gagal dikirim ke GitHub.');
+            }
         }
 
         return redirect('/admin/berita')->with('failed', 'Gagal menambahkan berita, gambar tidak ditemukan.');
