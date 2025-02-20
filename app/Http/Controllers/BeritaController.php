@@ -110,16 +110,24 @@ class BeritaController extends Controller
 
             // return redirect('/admin/berita')->with('success', 'Berita berhasil ditambahkan dan dikirim ke GitHub!');
             // Pastikan Laravel berada di dalam repository GitHub
+            // Pastikan Laravel berada di dalam repository GitHub
             $repoPath = base_path();
 
             // Deteksi OS
             $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
+            // Perintah touch untuk memicu perubahan Git
+            if ($isWindows) {
+                $touchCommand = "echo. >> database.sqlite";
+            } else {
+                $touchCommand = "touch database.sqlite";
+            }
+
             // Sesuaikan command berdasarkan OS
             if ($isWindows) {
-                $command = "cd /D {$repoPath} && git add . && git commit -m \"Tambah berita: {$request->judul}\" && git push origin main";
+                $command = "cd /D {$repoPath} && {$touchCommand} && git add . && git commit -m \"Tambah berita: {$request->judul}\" && git push origin main";
             } else {
-                $command = "cd {$repoPath} && git add . && git commit -m \"Tambah berita: {$request->judul}\" && git push origin main";
+                $command = "cd {$repoPath} && {$touchCommand} && git add . && git commit -m \"Tambah berita: {$request->judul}\" && git push origin main";
             }
 
             // Jalankan command Git
